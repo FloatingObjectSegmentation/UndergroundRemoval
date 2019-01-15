@@ -17,10 +17,10 @@
 using namespace std;
 
 #pragma region [configuration]
-string dmr_directory = "C:\\Users\\km\\Desktop\\MAG\\FloatingObjectFilter\\data";
-string dmr_file_name = "459_100.pcd";
-string aug_directory = "";
-string aug_file_name = "";
+string dmr_directory = "C:\\Users\\km\\Desktop\\LIDAR_WORKSPACE\\dmr";
+string dmr_file_name = "449_121";
+string aug_directory = "C:\\Users\\km\\Desktop\\LIDAR_WORKSPACE\\augmentation";
+string aug_file_name = "kurac.txt";
 #pragma endregion
 
 #pragma region [auxiliary]
@@ -39,9 +39,8 @@ public:
 };
 
 int ReadDMRStructure(DMRStruct& dmr, const string& filepath) {
-	srand(time(NULL));
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	if (pcl::io::loadPCDFile<pcl::PointXYZ>(filepath, *cloud) == -1) //* load the file
 	{
 		PCL_ERROR("Couldn't read file test_pcd.pcd \n");
@@ -102,7 +101,7 @@ int ReadAugmentablesFile(AugmentablesFile &f, const string& filepath) {
 			float y = atof(boundaryPointStrings[1].c_str());
 			float z = atof(boundaryPointStrings[2].c_str());
 			points.push_back(pcl::PointXYZ(x, y, z));
-			CentralPointMap[currIdx] = currentCentralPointIndex;
+			CentralPointMap[currIdx++] = currentCentralPointIndex;
 		}
 	}
 
@@ -111,6 +110,7 @@ int ReadAugmentablesFile(AugmentablesFile &f, const string& filepath) {
 	retval.CentralPointMap = CentralPointMap;
 	retval.points = points;
 	retval.radii = radii;
+	f = retval;
 
 	return 1;
 }
@@ -146,10 +146,11 @@ int main (int argc, char** argv)
 	}
 
 	// read inputs
-	DMRStruct dmr;
-	ReadDMRStructure(dmr, dmr_directory + "\\" + dmr_file_name);
 	AugmentablesFile augs;
 	ReadAugmentablesFile(augs, aug_directory + "\\" + aug_file_name);
+	DMRStruct dmr;
+	ReadDMRStructure(dmr, dmr_directory + "\\" + dmr_file_name);
+	
 
 	float dmr_density = max(abs(dmr.pdmr->points[0].x - dmr.pdmr->points[1].x), 
 							abs(dmr.pdmr->points[0].y - dmr.pdmr->points[1].y));
@@ -180,9 +181,11 @@ int main (int argc, char** argv)
 				// find the closest point
 				float min_r = 10.0f;
 				int min_r_idx = 0;
+				//std::cout << pp.x << " " << pp.y << std::endl;
 				for (int j = 0; j < pointIdxRadiusSearch.size(); j++) {
 					int idx = pointIdxRadiusSearch[j];
 					pcl::PointXYZ nbr = dmr.pdmr->points[idx];
+					//std::cout << nbr.x << " " << nbr.y << std::endl;
 					float dist = sqrt(pow(nbr.x - pp.x, 2) + pow(nbr.y - pp.y, 2));
 					if (dist < min_r) {
 						min_r = dist;
