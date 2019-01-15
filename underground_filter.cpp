@@ -111,6 +111,8 @@ int ReadAugmentablesFile(AugmentablesFile &f, const string& filepath) {
 	retval.CentralPointMap = CentralPointMap;
 	retval.points = points;
 	retval.radii = radii;
+
+	return 1;
 }
 
 int ParseArguments(int argc, char** argv) {
@@ -156,7 +158,7 @@ int main (int argc, char** argv)
 	pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
 	kdtree.setInputCloud(dmr.pdmr);
 
-	std::vector<int> underground;
+	std::set<int> underground;
 
 	std::vector<int> pointIdxRadiusSearch;
 	std::vector<float> pointRadiusSquaredDistance;
@@ -190,9 +192,7 @@ int main (int argc, char** argv)
 
 				// if the closest point is higher, then filter, if not then don't filter
 				if (dmr.z_vals[min_r_idx] > p_z)
-					underground.push_back(1);
-				else
-					underground.push_back(0);
+					underground.insert(augs.CentralPointMap[i]);
 			}
 		}
 	}
