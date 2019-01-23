@@ -17,10 +17,10 @@
 using namespace std;
 
 #pragma region [configuration]
-string dmr_directory = "C:\\Users\\km\\Desktop\\LIDAR_WORKSPACE\\dmr";
-string dmr_file_name = "449_121";
-string aug_directory = "C:\\Users\\km\\Desktop\\LIDAR_WORKSPACE\\augmentation";
-string aug_file_name = "kurac.txt";
+string dmr_directory = "E:\\workspaces\\LIDAR_WORKSPACE\\test\\";
+string dmr_file_name = "dmr";
+string aug_directory = "E:\\workspaces\\LIDAR_WORKSPACE\\test\\";
+string aug_file_name = "augs";
 #pragma endregion
 
 #pragma region [auxiliary]
@@ -195,7 +195,7 @@ int main (int argc, char** argv)
 
 				// if the closest point is higher, then filter, if not then don't filter
 				if (dmr.z_vals[min_r_idx] > p_z)
-					underground.insert(augs.CentralPointMap[i]);
+					underground.insert(augs.CentralPointMap[i] / 9); // because there are 9 points per bounding box that stick together.
 			}
 		}
 	}
