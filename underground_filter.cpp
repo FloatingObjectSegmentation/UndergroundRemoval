@@ -17,10 +17,10 @@
 using namespace std;
 
 #pragma region [configuration]
-string dmr_directory = "E:\\workspaces\\LIDAR_WORKSPACE\\test\\";
-string dmr_file_name = "dmr";
-string aug_directory = "E:\\workspaces\\LIDAR_WORKSPACE\\test\\";
-string aug_file_name = "augs";
+string dmr_directory = "E:\\workspaces\\LIDAR_WORKSPACE\\tests\\test\\";
+string dmr_file_name = "449_121";
+string aug_directory = "E:\\workspaces\\LIDAR_WORKSPACE\\tests\\dmr_augs_merge_test\\";
+string aug_file_name = "pbbmdf.txt";
 #pragma endregion
 
 #pragma region [auxiliary]
@@ -141,16 +141,16 @@ assumptions:
 int main (int argc, char** argv)
 {
 
-	if (!ParseArguments(argc, argv)) {
+	/*if (!ParseArguments(argc, argv)) {
 		return 1;
-	}
+	}*/
 
 	// read inputs
 	AugmentablesFile augs;
 	ReadAugmentablesFile(augs, aug_directory + "\\" + aug_file_name);
 	DMRStruct dmr;
 	ReadDMRStructure(dmr, dmr_directory + "\\" + dmr_file_name);
-	
+
 
 	float dmr_density = max(abs(dmr.pdmr->points[0].x - dmr.pdmr->points[1].x), 
 							abs(dmr.pdmr->points[0].y - dmr.pdmr->points[1].y));
@@ -189,13 +189,31 @@ int main (int argc, char** argv)
 					float dist = sqrt(pow(nbr.x - pp.x, 2) + pow(nbr.y - pp.y, 2));
 					if (dist < min_r) {
 						min_r = dist;
-						min_r_idx = j;
+						min_r_idx = pointIdxRadiusSearch[j];
 					}
 				}
+				
+				std::cout << min_r << std::endl;
+
+				for (int k = 0; k < pointIdxRadiusSearch.size(); k++)
+					std::cout << pointIdxRadiusSearch[k] << " ";
+				std::cout << std::endl;
+
+				
 
 				// if the closest point is higher, then filter, if not then don't filter
-				if (dmr.z_vals[min_r_idx] > p_z)
+				if (dmr.z_vals[min_r_idx] > p_z) {
+					
+					pcl::PointXYZ dmr_point = dmr.pdmr->points[min_r_idx];
+					std::cout << "The point dmr_point:" << dmr_point.x << "," << dmr_point.y << "," << dmr_point.z << " of height " << dmr.z_vals[min_r_idx] << std::endl;
+					std::cout << "Was higher than " << std::endl;
+					std::cout << "The augmentable point" << pp.x << "," << pp.y << "," << pp.z << " at height " << p_z << std::endl;
+					std::cout << "thus its center point " << augs.points[augs.CentralPointMap[i]].x << "," << augs.points[augs.CentralPointMap[i]].y << "," << augs.points[augs.CentralPointMap[i]].z << std::endl;
+					std::cout << "is removed" << std::endl << std::endl;
+					
+
 					underground.insert(augs.CentralPointMap[i] / 9); // because there are 9 points per bounding box that stick together.
+				}
 			}
 		}
 	}
