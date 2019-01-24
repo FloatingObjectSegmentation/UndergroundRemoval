@@ -141,9 +141,9 @@ assumptions:
 int main (int argc, char** argv)
 {
 
-	/*if (!ParseArguments(argc, argv)) {
+	if (!ParseArguments(argc, argv)) {
 		return 1;
-	}*/
+	}
 
 	// read inputs
 	AugmentablesFile augs;
@@ -181,37 +181,18 @@ int main (int argc, char** argv)
 				// find the closest point
 				float min_r = 10.0f;
 				int min_r_idx = 0;
-				//std::cout << pp.x << " " << pp.y << std::endl;
 				for (int j = 0; j < pointIdxRadiusSearch.size(); j++) {
 					int idx = pointIdxRadiusSearch[j];
 					pcl::PointXYZ nbr = dmr.pdmr->points[idx];
-					//std::cout << nbr.x << " " << nbr.y << std::endl;
 					float dist = sqrt(pow(nbr.x - pp.x, 2) + pow(nbr.y - pp.y, 2));
 					if (dist < min_r) {
 						min_r = dist;
 						min_r_idx = pointIdxRadiusSearch[j];
 					}
 				}
-				
-				std::cout << min_r << std::endl;
-
-				for (int k = 0; k < pointIdxRadiusSearch.size(); k++)
-					std::cout << pointIdxRadiusSearch[k] << " ";
-				std::cout << std::endl;
-
-				
 
 				// if the closest point is higher, then filter, if not then don't filter
 				if (dmr.z_vals[min_r_idx] > p_z) {
-					
-					pcl::PointXYZ dmr_point = dmr.pdmr->points[min_r_idx];
-					std::cout << "The point dmr_point:" << dmr_point.x << "," << dmr_point.y << "," << dmr_point.z << " of height " << dmr.z_vals[min_r_idx] << std::endl;
-					std::cout << "Was higher than " << std::endl;
-					std::cout << "The augmentable point" << pp.x << "," << pp.y << "," << pp.z << " at height " << p_z << std::endl;
-					std::cout << "thus its center point " << augs.points[augs.CentralPointMap[i]].x << "," << augs.points[augs.CentralPointMap[i]].y << "," << augs.points[augs.CentralPointMap[i]].z << std::endl;
-					std::cout << "is removed" << std::endl << std::endl;
-					
-
 					underground.insert(augs.CentralPointMap[i] / 9); // because there are 9 points per bounding box that stick together.
 				}
 			}
